@@ -1,0 +1,6 @@
+*.o
+*.a
+TestSkladniCPP.*
+Redundant code
+/obj
+/Default
