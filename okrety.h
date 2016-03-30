@@ -9,6 +9,7 @@ namespace spData
 {
 	enum EPart
 	{
+		EP1x1 = 4,
 		EPMiddle = 254,
 		EPLeftEnd = 17,
 		EPRightEnd = 16,

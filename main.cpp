@@ -5,10 +5,41 @@ using namespace std;
 
 int main()
 {
-#if 0
+	const size_t BOARD_SIZE = 10;
+	Coord pos(BOARD_SIZE, 0, 0);
 
-	return 0;
-#endif
+	size_t ** Values;
+	char Coordinates[BOARD_SIZE][2]; /*[...][0 = x; 1 = y]*/
+	spData::EPart ** Solution;
+
+	/*Dwie Plansze: (1)Wzor do wypelnienia i (2)Plansza operacyjna*/
+	spData::EPart ** StartingPattern, **BoardToFill;
+
+	Solution = new spData::EPart*[BOARD_SIZE];
+	StartingPattern = new spData::EPart*[BOARD_SIZE];
+	BoardToFill = new spData::EPart*[BOARD_SIZE];
+	Values = new size_t*[2];
+
+	/*Preparation of arrays*/
+	for (size_t i = 0; i < BOARD_SIZE; i++)
+	{
+		Solution[i] = new spData::EPart[BOARD_SIZE];
+		StartingPattern[i] = new spData::EPart[BOARD_SIZE];
+		BoardToFill[i] = new spData::EPart[BOARD_SIZE];
+		if(i < 2)
+			Values[i] = new size_t[BOARD_SIZE];
+	}
+
+	/*Initialization of their default values*/
+	for (size_t i = 0; i < BOARD_SIZE; i++)
+	{
+		for (size_t j = 0; j < BOARD_SIZE; j++)
+		{
+			BoardToFill[i][j] = StartingPattern[i][j] = Solution[i][j] = spData::EPEmpty;
+			if(i < 2)
+				Values[i][j] = 0;
+		}
+	}
 
 	srand(time(NULL));
 
@@ -98,43 +129,25 @@ int main()
 					 Direction(spData::EDRandom) {} //c-tor
 	} helper;
 
-	const size_t size = 10;
-	Coord pos(size, 0, 0);
-
-	size_t ** Values;				// index 0 - dla iksów
-	char Coordinates[size][2];		// index 1 - dla igreków
-	spData::EPart ** Plansza;
-
-	/*Dwie Plansze bêd¹ce: (1)Wzorem do wype³nienia i (2)Plansz¹ operacyjn¹*/
-	spData::EPart ** StartingPattern, BoardToFill;
-
-	Plansza = new spData::EPart*[size];
-	Values = new size_t*[2];
-	for (size_t i = 0; i < size; i++)
+	/*
+	 *	up 72
+	 *	down 80
+	 *	left 75
+	 *	right 77
+	 *
+	 *	113 119 101
+	 *	  q  w  e
+	 *	  a  s  d
+	 *	 97 115 100
+	 */
+	unsigned char znak = 0;
+	do
 	{
-		Plansza[i] = new spData::EPart[size];
-		if(i < 2)
-			Values[i] = new size_t[size];
-	}
+		if(znak == 224)
+			znak = getch();
 
-	for (size_t i = 0; i < size; i++)
-	{
-		for (size_t j = 0; j < size; j++)
+		switch (znak)
 		{
-			Plansza[i][j] = spData::EPEmpty;
-			if(i < 2)
-				Values[i][j] = 0;
-		}
-	}
-
-	unsigned char znak = 0;                      // up    72
-	do                                           // down  80
-	{                                            // left  75
-		if(znak == 224)                          // right 77
-			znak = getch();                      //113 119 101
-                                                 //   q w e
-		switch (znak)                            //   a s d
-		{                                        // 97 115 100
 		case 72: // ^
 			if(helper.isActive)
 			{
@@ -152,7 +165,7 @@ int main()
 				if(pos.isCursorOnTopBorder())
 					break;
 
-				spData::EPart upperTile = Plansza[pos.getY() - 1][pos.getX()];
+				spData::EPart upperTile = Solution[pos.getY() - 1][pos.getX()];
 
 				if(upperTile != spData::EPPlaceHolder)
 					break;
@@ -161,7 +174,7 @@ int main()
 				{
 					if(helper.shipType != spData::ES1Cutter)
 					{
-						Plansza[pos.getY()][pos.getX()] = spData::EPEmpty;
+						Solution[pos.getY()][pos.getX()] = spData::EPEmpty;
 						pos.moveUp();
 						--helper; //statek siê zmniejsza
 						break;
@@ -194,18 +207,18 @@ int main()
 				if(pos.isCursorOnBottomBorder())
 					break;
 
-				spData::EPart lowerTile = Plansza[pos.getY() + 1][pos.getX()];
+				spData::EPart lowerTile = Solution[pos.getY() + 1][pos.getX()];
 
 				if(lowerTile != spData::EPEmpty)
 					break;
 
-				if(pos.getY() < size)
+				if(pos.getY() < BOARD_SIZE)
 				{
 					if(helper.shipType != spData::ES4Battleship)
 					{
 
 						pos.moveDown();
-						Plansza[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
+						Solution[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
 						++helper; //statek siê zwiêksza
 						break;
 					}
@@ -232,7 +245,7 @@ int main()
 				if(pos.isCursorOnLeftBorder())
 					break;
 
-				spData::EPart prevTile = Plansza[pos.getY()][pos.getX() - 1];
+				spData::EPart prevTile = Solution[pos.getY()][pos.getX() - 1];
 
 				if(prevTile != spData::EPPlaceHolder)
 					break;
@@ -241,7 +254,7 @@ int main()
 				{
 					if(helper.shipType != spData::ES1Cutter)
 					{
-						Plansza[pos.getY()][pos.getX()] = spData::EPEmpty;
+						Solution[pos.getY()][pos.getX()] = spData::EPEmpty;
 						pos.moveLeft();
 						--helper; //statek siê zmniejsza
 						break;
@@ -274,17 +287,17 @@ int main()
 				if(pos.iscursorOnRightBorder())
 					break;
 
-				spData::EPart nextTile = Plansza[pos.getY()][pos.getX() + 1];
+				spData::EPart nextTile = Solution[pos.getY()][pos.getX() + 1];
 
 				if(nextTile != spData::EPEmpty)
 					break;
 
-				if(pos.getX() < size)
+				if(pos.getX() < BOARD_SIZE)
 				{
 					if(helper.shipType != spData::ES4Battleship)
 					{
 						pos.moveRight();
-						Plansza[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
+						Solution[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
 						++helper; //statek siê zwiêksza
 						break;
 					}
@@ -295,34 +308,36 @@ int main()
 			pos.moveRight();
 			break;
 		case 113:
-			Plansza[pos.getY()][pos.getX()] = spData::EPMiddle;
+			Solution[pos.getY()][pos.getX()] = spData::EPMiddle;
 			break;
 		case 101:
-			Plansza[pos.getY()][pos.getX()] = spData::EPStriked;
+			Solution[pos.getY()][pos.getX()] = spData::EPStriked;
 			break;
 		case 119:
-			Plansza[pos.getY()][pos.getX()] = spData::EPTopEnd;
+			Solution[pos.getY()][pos.getX()] = spData::EPTopEnd;
 			break;
 		case 115:
-			Plansza[pos.getY()][pos.getX()] = spData::EPBotomEnd;
+			Solution[pos.getY()][pos.getX()] = spData::EPBotomEnd;
 			break;
 		case 97:
-			Plansza[pos.getY()][pos.getX()] = spData::EPLeftEnd;
+			Solution[pos.getY()][pos.getX()] = spData::EPLeftEnd;
 			break;
 		case 100:
-			Plansza[pos.getY()][pos.getX()] = spData::EPRightEnd;
+			Solution[pos.getY()][pos.getX()] = spData::EPRightEnd;
 			break;
 		case 32:
-			drawShipForced(Plansza, size);
+			drawShipForced(Solution, BOARD_SIZE);
+
+
 			break;
 		case 13:
 			if(!helper.isActive)
 			{
-				for (size_t i = 0; i < size; i++)
+				for (size_t i = 0; i < BOARD_SIZE; i++)
 				{
-					for (size_t j = 0; j < size; j++)
+					for (size_t j = 0; j < BOARD_SIZE; j++)
 					{
-						Plansza[i][j] = spData::EPEmpty;
+						Solution[i][j] = spData::EPEmpty;
 						if(i < 2)
 							Values[i][j] = 0;
 					}
@@ -338,18 +353,18 @@ int main()
 				size_t tempy = (
 						helper.Direction ? helper.StartPosition.getY() : helper.StartPosition.getY() + i);
 
-				Plansza[tempy][tempx] = spData::EPEmpty;
+				Solution[tempy][tempx] = spData::EPEmpty;
 			}
 			helper.reset();
 			break;
 		case 114: //r
 			if(!helper.isActive)
 			{
-				if(Plansza[pos.getY()][pos.getX()] != spData::EPEmpty)
+				if(Solution[pos.getY()][pos.getX()] != spData::EPEmpty)
 					break;
 				helper.StartPosition.setXY(pos.getX(), pos.getY());
 				helper.shipType = spData::ES1Cutter;
-				Plansza[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
+				Solution[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
 				helper.isActive = true;
 			}
 			else
@@ -358,62 +373,66 @@ int main()
 					helper.Direction = spData::EDHorizontal;
 				if(!helper.remainedShips[4 - helper.shipType].empty())
 				{
-					drawShip(Plansza, size, helper.shipType, helper.Direction, helper.StartPosition);
+					drawShip(Solution, BOARD_SIZE, helper.shipType, helper.Direction, helper.StartPosition);
 					helper.destroyCurrentShip();
 					helper.reset();
 				}
 			}
 			break;
 		case 63: // ?
-			spInfo::printHelp(size);
+			spInfo::printHelp(BOARD_SIZE);
 			getch();
-			spInfo::cleanDisplay(size);
+			spInfo::cleanDisplay(BOARD_SIZE);
 			break;
 		}
 
-		spInfo::printRemainedShips(size, helper.remainedShips);
+		spInfo::printRemainedShips(BOARD_SIZE, helper.remainedShips);
 
-		countShipsParts(Plansza, size, Values);
+		countShipsParts(Solution, BOARD_SIZE, Values);
 
-		fill(Coordinates[0], Coordinates[0] + size * 2, spData::EPEmpty);
+		fill(Coordinates[0], Coordinates[0] + BOARD_SIZE * 2, spData::EPEmpty);
 		Coordinates[pos.getX()][0] = spData::EPBotomEnd;
 		Coordinates[pos.getY()][1] = spData::EPRightEnd;
 
 		spInfo::gotoXY();
 
-		for (size_t posX = 0; posX < size; posX++)
+		for (size_t posX = 0; posX < BOARD_SIZE; posX++)
 		{
 			if(posX == 0)
 			{
 				cout << "  ";
-				for (size_t currX = 0; currX < size; currX++)
+				for (size_t currX = 0; currX < BOARD_SIZE; currX++)
 					cout << Values[0][currX];
 				cout << endl << "  ";
-				for (size_t currX = 0; currX < size; currX++)
+				for (size_t currX = 0; currX < BOARD_SIZE; currX++)
 					cout << static_cast<char>(Coordinates[currX][0]);
 				cout << endl;
 			}
 
 			cout << Values[1][posX] << static_cast<char>(Coordinates[posX][1]);
-			for (size_t currY = 0; currY < size; currY++)
-				cout << static_cast<char>(Plansza[posX][currY]);
+			for (size_t currY = 0; currY < BOARD_SIZE; currY++)
+				cout << static_cast<char>(Solution[posX][currY]);
 			cout << endl;
 		}
 
-		helper.checkShipAvailability(Plansza);
+		helper.checkShipAvailability(Solution);
 #	ifdef printAdditionalInfo
 		printf("Pozycja X: %d, pozycja Y: %d, znak(%c %d).", pos.getX(), pos.getY(), znak, znak);
 #	endif
 
 	} while((znak = getch()) != 27); //czyli ESC
 
-	for (size_t i = 0; i < size; i++)
+	for (size_t i = 0; i < BOARD_SIZE; i++)
 	{
-		delete[] Plansza[i];
+		delete[] Solution[i];
+		delete[] BoardToFill[i];
+		delete[] StartingPattern[i];
 		if(i < 2)
 			delete[] Values[i];
 	}
-	delete[] Plansza;
+	delete[] Solution;
+	delete[] BoardToFill;
+	delete[] StartingPattern;
 	delete[] Values;
 
 #	ifdef printAdditionalInfo

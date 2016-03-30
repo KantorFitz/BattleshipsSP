@@ -52,7 +52,7 @@ void spInfo::printRemainedShips(size_t gap, std::vector< std::vector<spData::ESh
 	std::map<spData::EShip, std::string> bar = { { spData::ES4Battleship, "\x11\xfe\xfe\x10" }, //<==>
 			{ spData::ES3Cruiser, "\x11\xfe\x10" }, //<=>
 			{ spData::ES2Destroyer, "\x11\x10" }, //<>
-			{ spData::ES1Cutter, "\xfe" }, }; //=
+			{ spData::ES1Cutter, "\x04" }, }; //=
 
 	gotoXY();
 	for(size_t i = 0; i < remainedShips.size(); i++)

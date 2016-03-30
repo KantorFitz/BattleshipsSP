@@ -269,7 +269,10 @@ bool drawShip(spData::EPart ** Tablica, size_t const Rozmiar, spData::EShip Stat
 				continue;
 			}
 		}
-		Tablica[tempy][tempx] = spData::EPMiddle;
+		if(Statek == spData::ES1Cutter)
+			Tablica[tempy][tempx] = spData::EP1x1;
+		else
+			Tablica[tempy][tempx] = spData::EPMiddle;
 
 		drawBoundary(Tablica, Rozmiar, Statek, Kierunek, tempx, tempy);
 	}
@@ -307,6 +310,24 @@ bool drawShipForced(spData::EPart ** Tablica, const size_t Rozmiar)
 			delete foobar;
 		}
 		shipsSet.erase(shipsSet.begin());
+	}
+
+	std::vector<XY> waterFields;
+	for(size_t y = 0; y < Rozmiar; y++)
+	{
+		for(size_t x = 0; x < Rozmiar; x++)
+		{
+			spData::EPart tile = Tablica[y][x];
+			if(tile == spData::EPStriked || tile == spData::EPEmpty)
+				waterFields.push_back(XY(x, y));
+		}
+	}
+	std::shuffle(waterFields.begin(), waterFields.end(), g);
+	for(int i = 0; i < 4; i++)
+	{
+		if(rand() % 100 >= 75)	//we have 25% chance to generate any water field
+			Tablica[waterFields[0].getY()][waterFields[0].getX()] = spData::EPWaterField;
+		waterFields.erase(waterFields.begin());
 	}
 
 	return true;
