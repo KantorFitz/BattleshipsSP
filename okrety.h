@@ -92,8 +92,7 @@ private:
 };
 
 void countShipsParts(const spData::EPart* const *, const size_t, size_t **);
-bool drawShip(spData::EPart **, const size_t, spData::EShip, spData::EDirection, 	XY = XY(-1, -1));
+bool drawShip(spData::EPart **, const size_t, spData::EShip, spData::EDirection, XY = XY(-1, -1));
 bool drawShipForced(spData::EPart **, const size_t Rozmiar); //Forced draw any ship
-void drawBoundary(spData::EPart**, size_t const, spData::EShip, spData::EDirection, size_t, size_t, bool =
-		true);
+void drawBoundary(spData::EPart**, size_t const, spData::EShip, spData::EDirection, size_t, size_t, bool = true);
 VecPairXY_Dir * getSth(const spData::EPart* const * Tablica, const size_t Rozmiar, spData::EShip Ship);
