@@ -57,6 +57,7 @@ struct XY
    	void setX(const int x) { X = x;}
    	void setY(const int y) { Y = y;}
    	void setXY(const XY&);
+   	void setXY(const Coord&);
    	void setXY(const int x, const int y);
 
    	bool isValid(size_t Boundary);

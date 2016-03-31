@@ -91,7 +91,7 @@ int main()
 		{
 			remainedShips = shipsSet;
 		}
-		bool destroyCurrentShip()
+		bool destroyCurrentShip(void)
 		{
 			if(shipType != spData::ESRandom)
 			{
@@ -158,28 +158,42 @@ int main()
 				else
 				{
 					if(helper.Direction != spData::EDVertical)
-						break;
+					{
+						if(helper.shipType == spData::ES1Cutter)
+							helper.Direction = spData::EDVertical;
+						else
+							break;
+					}
 				}
 
 				if(pos.isCursorOnTopBorder())
 					break;
 
-				spData::EPart upperTile = Solution[pos.getY() - 1][pos.getX()];
+				spData::EPart upperTile = BoardToFill[pos.getY() - 1][pos.getX()];
 
-				if(upperTile != spData::EPPlaceHolder)
+				if(upperTile != spData::EPPlaceHolder && upperTile != spData::EPEmpty)
 					break;
 
-				if(pos.getY() >= 0)
+				if(pos.getY() > 0)
 				{
-					if(helper.shipType != spData::ES1Cutter)
+					if(pos.getY() <= helper.StartPosition.getY())
 					{
-						Solution[pos.getY()][pos.getX()] = spData::EPEmpty;
+						if(helper.shipType != spData::ES4Battleship)
+						{
+							pos.moveUp();
+							helper.StartPosition.setXY(pos);
+							BoardToFill[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
+							++helper; //statek sie zwieksza
+						}
+						break;
+					}
+					if(pos.getY() > helper.StartPosition.getY())
+					{
+						BoardToFill[pos.getY()][pos.getX()] = spData::EPEmpty;
 						pos.moveUp();
 						--helper; //statek siê zmniejsza
 						break;
 					}
-					else
-						break;
 				}
 			}
 			pos.moveUp();
@@ -206,23 +220,41 @@ int main()
 				if(pos.isCursorOnBottomBorder())
 					break;
 
-				spData::EPart lowerTile = Solution[pos.getY() + 1][pos.getX()];
+				spData::EPart lowerTile = BoardToFill[pos.getY() + 1][pos.getX()];
 
-				if(lowerTile != spData::EPEmpty)
+				if(lowerTile != spData::EPPlaceHolder && lowerTile != spData::EPEmpty)
 					break;
 
 				if(pos.getY() < BOARD_SIZE)
 				{
-					if(helper.shipType != spData::ES4Battleship)
+					if(pos.getY() > helper.StartPosition.getY())
 					{
-
-						pos.moveDown();
-						Solution[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
-						++helper; //statek siê zwiêksza
+						if(helper.shipType != spData::ES4Battleship)
+						{
+							pos.moveDown();
+							BoardToFill[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
+							++helper;
+						}
 						break;
 					}
-					else
-						break;
+					if(pos.getY() <= helper.StartPosition.getY())
+					{
+						if(helper.shipType == spData::ES1Cutter)
+						{
+							pos.moveDown();
+							BoardToFill[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
+							++helper;
+							break;
+						}
+						else
+						{
+							BoardToFill[pos.getY()][pos.getX()] = spData::EPEmpty;
+							pos.moveDown();
+							helper.StartPosition.setXY(pos);
+							--helper;
+							break;
+						}
+					}
 				}
 			}
 			pos.moveDown();
@@ -238,28 +270,52 @@ int main()
 				else
 				{
 					if(helper.Direction != spData::EDHorizontal)
-						break;
+					{
+						if(helper.shipType == spData::ES1Cutter)
+							helper.Direction = spData::EDHorizontal;
+						else
+							break;
+					}
 				}
 
 				if(pos.isCursorOnLeftBorder())
 					break;
 
-				spData::EPart prevTile = Solution[pos.getY()][pos.getX() - 1];
+				spData::EPart prevTile = BoardToFill[pos.getY()][pos.getX() - 1];
 
-				if(prevTile != spData::EPPlaceHolder)
+				if(prevTile != spData::EPPlaceHolder && prevTile != spData::EPEmpty)
 					break;
 
 				if(pos.getX() >= 0)
 				{
-					if(helper.shipType != spData::ES1Cutter)
+					if(pos.getX() <= helper.StartPosition.getX())
 					{
-						Solution[pos.getY()][pos.getX()] = spData::EPEmpty;
-						pos.moveLeft();
-						--helper; //statek siê zmniejsza
+						if(helper.shipType != spData::ES4Battleship)
+						{
+							pos.moveLeft();
+							BoardToFill[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
+							helper.StartPosition.setXY(pos);
+							++helper;
+						}
 						break;
 					}
-					else
-						break;
+					if(pos.getX() > helper.StartPosition.getX())
+					{
+						if(helper.shipType == spData::ES1Cutter)
+						{
+							pos.moveLeft();
+							helper.StartPosition.setXY(pos);
+							BoardToFill[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
+							break;
+						}
+						else
+						{
+							BoardToFill[pos.getY()][pos.getX()] = spData::EPEmpty;
+							pos.moveLeft();
+							--helper;
+							break;
+						}
+					}
 				}
 			}
 			pos.moveLeft();
@@ -286,43 +342,65 @@ int main()
 				if(pos.iscursorOnRightBorder())
 					break;
 
-				spData::EPart nextTile = Solution[pos.getY()][pos.getX() + 1];
+				spData::EPart nextTile = BoardToFill[pos.getY()][pos.getX() + 1];
 
-				if(nextTile != spData::EPEmpty)
+				if(nextTile != spData::EPEmpty && nextTile != spData::EPPlaceHolder)
 					break;
 
 				if(pos.getX() < BOARD_SIZE)
 				{
-					if(helper.shipType != spData::ES4Battleship)
+					if(pos.getX() <= helper.StartPosition.getX())
 					{
-						pos.moveRight();
-						Solution[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
-						++helper; //statek siê zwiêksza
+						if(helper.shipType == spData::ES1Cutter)
+						{
+							pos.moveRight();
+							BoardToFill[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
+							++helper;
+							break;
+						}
+						else
+						{
+							BoardToFill[pos.getY()][pos.getX()] = spData::EPEmpty;
+							pos.moveRight();
+							helper.StartPosition.setXY(pos);
+							--helper;
+							break;
+						}
+					}
+					if(pos.getX() > helper.StartPosition.getX())
+					{
+						if(helper.shipType != spData::ES4Battleship)
+						{
+							pos.moveRight();
+							BoardToFill[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
+							++helper;
+						}
 						break;
 					}
-					else
-						break;
 				}
 			}
 			pos.moveRight();
 			break;
 		case 113:
-			Solution[pos.getY()][pos.getX()] = spData::EPMiddle;
+			if(BoardToFill[pos.getY()][pos.getX()] == spData::EPMiddle)
+				BoardToFill[pos.getY()][pos.getX()] = spData::EP1x1;
+			if(BoardToFill[pos.getY()][pos.getX()] == spData::EPEmpty)
+				BoardToFill[pos.getY()][pos.getX()] = spData::EPMiddle;
 			break;
 		case 101:
-			Solution[pos.getY()][pos.getX()] = spData::EPStriked;
+			BoardToFill[pos.getY()][pos.getX()] = spData::EPStriked;
 			break;
 		case 119:
-			Solution[pos.getY()][pos.getX()] = spData::EPTopEnd;
+			BoardToFill[pos.getY()][pos.getX()] = spData::EPTopEnd;
 			break;
 		case 115:
-			Solution[pos.getY()][pos.getX()] = spData::EPBotomEnd;
+			BoardToFill[pos.getY()][pos.getX()] = spData::EPBotomEnd;
 			break;
 		case 97:
-			Solution[pos.getY()][pos.getX()] = spData::EPLeftEnd;
+			BoardToFill[pos.getY()][pos.getX()] = spData::EPLeftEnd;
 			break;
 		case 100:
-			Solution[pos.getY()][pos.getX()] = spData::EPRightEnd;
+			BoardToFill[pos.getY()][pos.getX()] = spData::EPRightEnd;
 			break;
 		case 32:
 			drawShipForced(Solution, BOARD_SIZE);
@@ -356,7 +434,7 @@ int main()
 				size_t tempy = (
 						helper.Direction ? helper.StartPosition.getY() : helper.StartPosition.getY() + i);
 
-				Solution[tempy][tempx] = spData::EPEmpty;
+				BoardToFill[tempy][tempx] = spData::EPEmpty;
 			}
 			helper.reset();
 			break;

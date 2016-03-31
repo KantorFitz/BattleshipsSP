@@ -6,6 +6,12 @@ void XY::setXY(const XY& copy)
 	Y = copy.getY();
 }
 
+void XY::setXY(const Coord& copy)
+{
+	X = copy.getX();
+	Y = copy.getY();
+}
+
 void XY::setXY(const int x, const int y)
 {
 	X = x;
@@ -339,11 +345,12 @@ void prepareStartingPattern(const spData::EPart* const * Tablica, const size_t R
 	std::mt19937 g(rd());
 
 	std::vector<XY> startingTiles;
+	spData::EPart tile;
 	for(size_t y = 0; y < Rozmiar; y++)
 	{
 		for(size_t x = 0; x < Rozmiar; x++)
 		{
-			spData::EPart tile = Tablica[y][x];
+			tile = Tablica[y][x];
 			if(tile != spData::EPEmpty && tile != spData::EPStriked && tile != spData::EPPlaceHolder)
 			{
 				startingTiles.push_back(XY(x, y));
@@ -351,6 +358,16 @@ void prepareStartingPattern(const spData::EPart* const * Tablica, const size_t R
 					Pattern[y][x] = tile;
 			}
 		}
+	}
+
+	auto iter = startingTiles.begin();
+	while(iter != startingTiles.end())
+	{
+		tile = Tablica[iter->getY()][iter->getX()];
+		if(tile == spData::EPRightEnd || tile == spData::EPBotomEnd)
+			iter = startingTiles.erase(iter);
+		else
+			iter++;
 	}
 	std::shuffle(startingTiles.begin(), startingTiles.end(), g);
 	startingTiles.erase(startingTiles.begin() + 4, startingTiles.end());
@@ -360,3 +377,4 @@ void prepareStartingPattern(const spData::EPart* const * Tablica, const size_t R
 		Pattern[a.getY()][a.getX()] = Tablica[a.getY()][a.getX()];
 	}
 }
+
