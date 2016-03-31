@@ -332,3 +332,31 @@ bool drawShipForced(spData::EPart ** Tablica, const size_t Rozmiar)
 
 	return true;
 }
+
+void prepareStartingPattern(const spData::EPart* const * Tablica, const size_t Rozmiar, spData::EPart** Pattern)
+{
+	std::random_device rd;
+	std::mt19937 g(rd());
+
+	std::vector<XY> startingTiles;
+	for(size_t y = 0; y < Rozmiar; y++)
+	{
+		for(size_t x = 0; x < Rozmiar; x++)
+		{
+			spData::EPart tile = Tablica[y][x];
+			if(tile != spData::EPEmpty && tile != spData::EPStriked && tile != spData::EPPlaceHolder)
+			{
+				startingTiles.push_back(XY(x, y));
+				if(tile == spData::EPWaterField)
+					Pattern[y][x] = tile;
+			}
+		}
+	}
+	std::shuffle(startingTiles.begin(), startingTiles.end(), g);
+	startingTiles.erase(startingTiles.begin() + 4, startingTiles.end());
+
+	for(const auto & a : startingTiles)
+	{
+		Pattern[a.getY()][a.getX()] = Tablica[a.getY()][a.getX()];
+	}
+}

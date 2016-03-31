@@ -43,7 +43,7 @@ int main()
 
 	srand(time(NULL));
 
-	const static std::vector<std::vector<spData::EShip>> shipsSet = { { spData::ES4Battleship },
+	static const std::vector<std::vector<spData::EShip>> shipsSet = { { spData::ES4Battleship },
 			{ spData::ES3Cruiser, spData::ES3Cruiser },
 			{ spData::ES2Destroyer, spData::ES2Destroyer, spData::ES2Destroyer },
 			{ spData::ES1Cutter, spData::ES1Cutter, spData::ES1Cutter, spData::ES1Cutter } };
@@ -102,7 +102,6 @@ int main()
 					return true;
 				}
 			}
-
 			return false;
 		}
 		void setDirection(spData::EDirection Kierunek)
@@ -327,8 +326,14 @@ int main()
 			break;
 		case 32:
 			drawShipForced(Solution, BOARD_SIZE);
-
-
+			prepareStartingPattern(Solution, BOARD_SIZE, StartingPattern);
+			for(size_t y = 0; y < BOARD_SIZE; y++)
+			{
+				for(size_t x = 0; x < BOARD_SIZE; x++)
+				{
+					BoardToFill[y][x] = StartingPattern[y][x];
+				}
+			}
 			break;
 		case 13:
 			if(!helper.isActive)
@@ -337,9 +342,7 @@ int main()
 				{
 					for (size_t j = 0; j < BOARD_SIZE; j++)
 					{
-						Solution[i][j] = spData::EPEmpty;
-						if(i < 2)
-							Values[i][j] = 0;
+						BoardToFill[i][j] = StartingPattern[i][j];
 					}
 				}
 				helper.reinforcements();
@@ -360,11 +363,11 @@ int main()
 		case 114: //r
 			if(!helper.isActive)
 			{
-				if(Solution[pos.getY()][pos.getX()] != spData::EPEmpty)
+				if(BoardToFill[pos.getY()][pos.getX()] != spData::EPEmpty)
 					break;
 				helper.StartPosition.setXY(pos.getX(), pos.getY());
 				helper.shipType = spData::ES1Cutter;
-				Solution[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
+				BoardToFill[pos.getY()][pos.getX()] = spData::EPPlaceHolder;
 				helper.isActive = true;
 			}
 			else
@@ -373,7 +376,7 @@ int main()
 					helper.Direction = spData::EDHorizontal;
 				if(!helper.remainedShips[4 - helper.shipType].empty())
 				{
-					drawShip(Solution, BOARD_SIZE, helper.shipType, helper.Direction, helper.StartPosition);
+					drawShip(BoardToFill, BOARD_SIZE, helper.shipType, helper.Direction, helper.StartPosition);
 					helper.destroyCurrentShip();
 					helper.reset();
 				}
@@ -411,7 +414,7 @@ int main()
 
 			cout << Values[1][posX] << static_cast<char>(Coordinates[posX][1]);
 			for (size_t currY = 0; currY < BOARD_SIZE; currY++)
-				cout << static_cast<char>(Solution[posX][currY]);
+				cout << static_cast<char>(BoardToFill[posX][currY]);
 			cout << endl;
 		}
 
