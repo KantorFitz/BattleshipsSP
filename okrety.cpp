@@ -81,14 +81,14 @@ bool Coord::isCursonOnBorder()
 			|| isCursorOnBottomBorder();
 }
 
-VecPairXY_Dir * getSth(const spData::EPart* const * Tablica, const size_t Rozmiar, spData::EShip Ship)
+VecPairXY_Dir * getSth(const EPart::EPart* const * Tablica, const size_t Rozmiar, EShip::EShip Ship)
 {
 	bool isThereAnyPlaceAvailable = false;
 	for (size_t y = 0; y < Rozmiar; y++)// Szukamy jakiegokolwiek wolnego miejsca tylko dla pola 1x1
 	{
 		for(size_t x = 0; x < Rozmiar; x++)
 		{
-			if((Tablica[y][x] == spData::EPEmpty) || (Tablica[y][x] == spData::EPPlaceHolder))
+			if((Tablica[y][x] == EPart::Empty) || (Tablica[y][x] == EPart::PlaceHolder))
 			{
 				isThereAnyPlaceAvailable = true;
 				break;
@@ -113,8 +113,8 @@ VecPairXY_Dir * getSth(const spData::EPart* const * Tablica, const size_t Rozmia
 		{ /*Zebranie wszystkich pozycji zawieraj¹cych puste pole w obu kierunkach*/
 			for (size_t x = 0; x < Rozmiar; x++)
 			{
-				if((Tablica[kierunek ? i : x][kierunek ? x : i] == spData::EPEmpty)
-						|| (Tablica[kierunek ? i : x][kierunek ? x : i] == spData::EPPlaceHolder))
+				if((Tablica[kierunek ? i : x][kierunek ? x : i] == EPart::Empty)
+						|| (Tablica[kierunek ? i : x][kierunek ? x : i] == EPart::PlaceHolder))
 				{ /*czy statek zmieœci siê zaczynaj¹c od tego miejsca (x)*/
 					if(x < Rozmiar - Ship + 1)
 						tempPlaces.push_back(x);
@@ -125,14 +125,14 @@ VecPairXY_Dir * getSth(const spData::EPart* const * Tablica, const size_t Rozmia
 			{
 				for (size_t k = tempPlaces[j]; k < tempPlaces[j] + Ship; k++)
 				{
-					if((Tablica[kierunek ? i : k][kierunek ? k : i] == spData::EPEmpty)
-							|| (Tablica[kierunek ? i : k][kierunek ? k : i] == spData::EPPlaceHolder))
+					if((Tablica[kierunek ? i : k][kierunek ? k : i] == EPart::Empty)
+							|| (Tablica[kierunek ? i : k][kierunek ? k : i] == EPart::PlaceHolder))
 					{
 						if(k == tempPlaces[j] + Ship - 1)
 						{
 							size_t foo = kierunek ? tempPlaces[j] : i;
 							size_t bar = kierunek ? i : tempPlaces[j];
-							Ret->push_back(std::make_pair(XY(foo, bar), (spData::EDirection) kierunek));
+							Ret->push_back(std::make_pair(XY(foo, bar), static_cast<EDirection::EDirection>(kierunek)));
 						}
 					}
 					else
@@ -149,7 +149,7 @@ VecPairXY_Dir * getSth(const spData::EPart* const * Tablica, const size_t Rozmia
 		return nullptr;
 }
 
-void countShipsParts(const spData::EPart* const* Tablica, const size_t Rozmiar, size_t ** Wartosci)
+void countShipsParts(const EPart::EPart* const* Tablica, const size_t Rozmiar, size_t ** Wartosci)
 {
 	for (size_t i = 0; i < 2; i++)	//zerowanie tablicy
 	{
@@ -161,8 +161,8 @@ void countShipsParts(const spData::EPart* const* Tablica, const size_t Rozmiar, 
 	{
 		for (size_t j = 0; j < Rozmiar; j++)
 		{
-			if(Tablica[i][j] != spData::EPEmpty && Tablica[i][j] != spData::EPStriked
-					&& Tablica[i][j] != spData::EPWaterField)
+			if(Tablica[i][j] != EPart::Empty && Tablica[i][j] != EPart::Striked
+					&& Tablica[i][j] != EPart::WaterField)
 			{
 				Wartosci[0][j]++;
 				Wartosci[1][i]++;
@@ -171,10 +171,10 @@ void countShipsParts(const spData::EPart* const* Tablica, const size_t Rozmiar, 
 	}
 }
 
-void drawBoundary(spData::EPart** Tablica, size_t const Rozmiar, spData::EShip Statek,
-		spData::EDirection Kierunek, size_t XPos, size_t YPos, bool oneTileOnly /* = true */)
+void drawBoundary(EPart::EPart** Tablica, size_t const Rozmiar, EShip::EShip Statek,
+		EDirection::EDirection Kierunek, size_t XPos, size_t YPos, bool oneTileOnly /* = true */)
 {
-	if(Statek == spData::ESRandom || Kierunek == spData::EDRandom)
+	if(Statek == EShip::Random || Kierunek == EDirection::Random)
 		return;
 
 	for (short loop = 0; loop < Statek; loop++)
@@ -187,8 +187,8 @@ void drawBoundary(spData::EPart** Tablica, size_t const Rozmiar, spData::EShip S
 			{
 				if(!(x < Rozmiar))
 					continue;
-				if(Tablica[y][x] == spData::EPEmpty || Tablica[y][x] == spData::EPPlaceHolder)
-					Tablica[y][x] = spData::EPStriked;
+				if(Tablica[y][x] == EPart::Empty || Tablica[y][x] == EPart::PlaceHolder)
+					Tablica[y][x] = EPart::Striked;
 			}
 		}
 		if(oneTileOnly)
@@ -197,10 +197,10 @@ void drawBoundary(spData::EPart** Tablica, size_t const Rozmiar, spData::EShip S
 	}
 }
 
-bool drawShip(spData::EPart ** Tablica, size_t const Rozmiar, spData::EShip Statek,
-		spData::EDirection Kierunek, XY posXY /* = ( -1, -1 ) */)//Edirection == EDRandom znaczy sprawdzenie w dwóch kierunkach
+bool drawShip(EPart::EPart ** Tablica, size_t const Rozmiar, EShip::EShip Statek,
+		EDirection::EDirection Kierunek, XY posXY /* = ( -1, -1 ) */)//Edirection == EDRandom znaczy sprawdzenie w dwóch kierunkach
 {
-	if(Statek == spData::ESRandom)
+	if(Statek == EShip::Random)
 		return false;
 
 	VecPairXY_Dir * foobar;
@@ -214,7 +214,7 @@ bool drawShip(spData::EPart ** Tablica, size_t const Rozmiar, spData::EShip Stat
 	foobar = getSth(Tablica, Rozmiar, Statek);
 	if(foobar)	//je¿eli jakieœ s¹...
 	{	/* je¿eli kierunek jest ustalony, wywalamy wszystkie opcje nie zgadzaj¹ce siê z nim*/
-		if(Kierunek != spData::EDRandom)
+		if(Kierunek != EDirection::Random)
 		{
 			auto i = std::begin(*foobar);
 			while(i != std::end(*foobar))
@@ -258,27 +258,27 @@ bool drawShip(spData::EPart ** Tablica, size_t const Rozmiar, spData::EShip Stat
 	{
 		size_t tempx = (Kierunek ? HorStart + i : HorStart);
 		size_t tempy = (Kierunek ? VerStart : VerStart + i);
-		if(Statek != spData::ES1Cutter)
+		if(Statek != EShip::Cutter_1)
 		{
 			if(i == 0)
 			{
-				Tablica[VerStart][HorStart] = Kierunek ? spData::EPLeftEnd : spData::EPTopEnd;
+				Tablica[VerStart][HorStart] = Kierunek ? EPart::LeftEnd : EPart::TopEnd;
 
 				drawBoundary(Tablica, Rozmiar, Statek, Kierunek, HorStart, VerStart);
 				continue;
 			}
 			else if(i == (size_t) Statek - 1)
 			{
-				Tablica[tempy][tempx] = Kierunek ? spData::EPRightEnd : spData::EPBotomEnd;
+				Tablica[tempy][tempx] = Kierunek ? EPart::RightEnd : EPart::BotomEnd;
 
 				drawBoundary(Tablica, Rozmiar, Statek, Kierunek, tempx, tempy);
 				continue;
 			}
 		}
-		if(Statek == spData::ES1Cutter)
-			Tablica[tempy][tempx] = spData::EP1x1;
+		if(Statek == EShip::Cutter_1)
+			Tablica[tempy][tempx] = EPart::Single;
 		else
-			Tablica[tempy][tempx] = spData::EPMiddle;
+			Tablica[tempy][tempx] = EPart::Middle;
 
 		drawBoundary(Tablica, Rozmiar, Statek, Kierunek, tempx, tempy);
 	}
@@ -286,18 +286,18 @@ bool drawShip(spData::EPart ** Tablica, size_t const Rozmiar, spData::EShip Stat
 	return true;
 }
 
-bool drawShipForced(spData::EPart ** Tablica, const size_t Rozmiar)
+bool drawShipForced(EPart::EPart ** Tablica, const size_t Rozmiar)
 {
-	std::vector<spData::EShip> shipsSet = { spData::ES4Battleship,
-			spData::ES3Cruiser,
-			spData::ES3Cruiser,
-			spData::ES2Destroyer,
-			spData::ES2Destroyer,
-			spData::ES2Destroyer,
-			spData::ES1Cutter,
-			spData::ES1Cutter,
-			spData::ES1Cutter,
-			spData::ES1Cutter };
+	std::vector<EShip::EShip> shipsSet = { EShip::Battleship_4,
+			EShip::Cruiser_3,
+			EShip::Cruiser_3,
+			EShip::Destroyer_2,
+			EShip::Destroyer_2,
+			EShip::Destroyer_2,
+			EShip::Cutter_1,
+			EShip::Cutter_1,
+			EShip::Cutter_1,
+			EShip::Cutter_1 };
 
 	VecPairXY_Dir * foobar;
 
@@ -311,7 +311,7 @@ bool drawShipForced(spData::EPart ** Tablica, const size_t Rozmiar)
 		{
 			std::shuffle(foobar->begin(), foobar->end(), g);
 			size_t randIndex = std::rand() % foobar->size();
-			spData::EDirection Kierunek = foobar->at(randIndex).second;
+			EDirection::EDirection Kierunek = foobar->at(randIndex).second;
 			drawShip(Tablica, Rozmiar, shipsSet[0], Kierunek, foobar->at(randIndex).first);
 			delete foobar;
 		}
@@ -323,8 +323,8 @@ bool drawShipForced(spData::EPart ** Tablica, const size_t Rozmiar)
 	{
 		for(size_t x = 0; x < Rozmiar; x++)
 		{
-			spData::EPart tile = Tablica[y][x];
-			if(tile == spData::EPStriked || tile == spData::EPEmpty)
+			EPart::EPart tile = Tablica[y][x];
+			if(tile == EPart::Striked || tile == EPart::Empty)
 				waterFields.push_back(XY(x, y));
 		}
 	}
@@ -332,29 +332,29 @@ bool drawShipForced(spData::EPart ** Tablica, const size_t Rozmiar)
 	for(int i = 0; i < 4; i++)
 	{
 		if(rand() % 100 >= 75)	//we have 25% chance to generate any water field
-			Tablica[waterFields[0].getY()][waterFields[0].getX()] = spData::EPWaterField;
+			Tablica[waterFields[0].getY()][waterFields[0].getX()] = EPart::WaterField;
 		waterFields.erase(waterFields.begin());
 	}
 
 	return true;
 }
 
-void prepareStartingPattern(const spData::EPart* const * Tablica, const size_t Rozmiar, spData::EPart** Pattern)
+void prepareStartingPattern(const EPart::EPart* const * Tablica, const size_t Rozmiar, EPart::EPart** Pattern)
 {
 	std::random_device rd;
 	std::mt19937 g(rd());
 
 	std::vector<XY> startingTiles;
-	spData::EPart tile;
+	EPart::EPart tile;
 	for(size_t y = 0; y < Rozmiar; y++)
 	{
 		for(size_t x = 0; x < Rozmiar; x++)
 		{
 			tile = Tablica[y][x];
-			if(tile != spData::EPEmpty && tile != spData::EPStriked && tile != spData::EPPlaceHolder)
+			if(tile != EPart::Empty && tile != EPart::Striked && tile != EPart::PlaceHolder)
 			{
 				startingTiles.push_back(XY(x, y));
-				if(tile == spData::EPWaterField)
+				if(tile == EPart::WaterField)
 					Pattern[y][x] = tile;
 			}
 		}
@@ -364,7 +364,7 @@ void prepareStartingPattern(const spData::EPart* const * Tablica, const size_t R
 	while(iter != startingTiles.end())
 	{
 		tile = Tablica[iter->getY()][iter->getX()];
-		if(tile == spData::EPRightEnd || tile == spData::EPBotomEnd)
+		if(tile == EPart::RightEnd || tile == EPart::BotomEnd)
 			iter = startingTiles.erase(iter);
 		else
 			iter++;

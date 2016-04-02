@@ -12,7 +12,7 @@
 namespace spInfo
 {
 	void printHelp(size_t);
-	void printRemainedShips(size_t, std::vector<std::vector<spData::EShip>> const &);
+	void printRemainedShips(size_t, std::vector<std::vector<EShip::EShip>> const &);
 	void cleanDisplay(size_t);
 	void gotoXY(const XY xy = XY(0, 0));
 }

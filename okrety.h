@@ -5,41 +5,47 @@
 struct XY;
 struct Coord;
 
-namespace spData
+namespace EPart
 {
 	enum EPart
 	{
-		EP1x1 = 4,
-		EPMiddle = 254,
-		EPLeftEnd = 17,
-		EPRightEnd = 16,
-		EPTopEnd = 30,
-		EPBotomEnd = 31,
-		EPWaterField = 176,
-		EPStriked = 45,
-		EPEmpty = 32,
-		EPPlaceHolder = 120
+		Single = 4,
+		Middle = 254,
+		LeftEnd = 17,
+		RightEnd = 16,
+		TopEnd = 30,
+		BotomEnd = 31,
+		WaterField = 176,
+		Striked = 45,
+		Empty = 32,
+		PlaceHolder = 120
 	};
+}
 
+namespace EDirection
+{
 	enum EDirection
 	{
-		EDRandom = -1,
-		EDVertical,
-		EDHorizontal
+		Random = -1,
+		Vertical,
+		Horizontal
 	};
+}
 
+namespace EShip
+{
 	enum EShip
 	{
-		ESRandom = 0,
-		ES1Cutter,
-		ES2Destroyer,
-		ES3Cruiser,
-		ES4Battleship
+		Random = 0,
+		Cutter_1,
+		Destroyer_2,
+		Cruiser_3,
+		Battleship_4
 	};
-};
+}
 
 /* Vector of Pairs containing both XY struct and EDirection Enum*/
-typedef std::vector<std::pair<XY, spData::EDirection>> VecPairXY_Dir;
+typedef std::vector<std::pair<XY, EDirection::EDirection>> VecPairXY_Dir;
 
 struct XY
 {
@@ -93,9 +99,9 @@ private:
 	const size_t max;
 };
 
-void countShipsParts(const spData::EPart* const *, const size_t, size_t **);
-bool drawShip(spData::EPart **, const size_t, spData::EShip, spData::EDirection, XY = XY(-1, -1));
-bool drawShipForced(spData::EPart **, const size_t Rozmiar); //Forced draw any ship
-void drawBoundary(spData::EPart**, size_t const, spData::EShip, spData::EDirection, size_t, size_t, bool = true);
-VecPairXY_Dir * getSth(const spData::EPart* const * Tablica, const size_t Rozmiar, spData::EShip Ship);
-void prepareStartingPattern(const spData::EPart* const*, const size_t, spData::EPart **);
+void countShipsParts(const EPart::EPart* const *, const size_t, size_t **);
+bool drawShip(EPart::EPart **, const size_t, EShip::EShip, EDirection::EDirection, XY = XY(-1, -1));
+bool drawShipForced(EPart::EPart **, const size_t Rozmiar); //Forced draw any ship
+void drawBoundary(EPart::EPart**, size_t const, EShip::EShip, EDirection::EDirection, size_t, size_t, bool = true);
+VecPairXY_Dir * getSth(const EPart::EPart* const * Tablica, const size_t Rozmiar, EShip::EShip Ship);
+void prepareStartingPattern(const EPart::EPart* const *, const size_t, EPart::EPart **);

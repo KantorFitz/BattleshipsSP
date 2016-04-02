@@ -34,12 +34,12 @@ void spInfo::printHelp(size_t gap)
     gotoXY(XY(gap + 5, conInfo::wherey())); printf("Gra w okrety - wersja ALFA\n"              );
     gotoXY(XY(gap + 5, conInfo::wherey())); printf("wskazniki przesuwa sie strzalkami,\n"      );
     gotoXY(XY(gap + 5, conInfo::wherey())); printf("elementy statku to:\n"                     );
-    gotoXY(XY(gap + 5, conInfo::wherey())); printf("gorna czesc okretu (%c) - klawisz w,\n",     spData::EPTopEnd);
-    gotoXY(XY(gap + 5, conInfo::wherey())); printf("dolna czesc okretu (%c) - klawisz s,\n",     spData::EPBotomEnd);
-    gotoXY(XY(gap + 5, conInfo::wherey())); printf("lewa czesc okretu (%c) - klawisz a,\n",      spData::EPLeftEnd);
-    gotoXY(XY(gap + 5, conInfo::wherey())); printf("prawa czesc okretu (%c) - klawisz d,\n",     spData::EPRightEnd);
-    gotoXY(XY(gap + 5, conInfo::wherey())); printf("srodkowa czesc okretu (%c) - klawisz q,\n",  spData::EPMiddle);
-    gotoXY(XY(gap + 5, conInfo::wherey())); printf("przekreslenie (%c) - klawisz e\n",           spData::EPStriked);
+    gotoXY(XY(gap + 5, conInfo::wherey())); printf("gorna czesc okretu (%c) - klawisz w,\n",     EPart::TopEnd);
+    gotoXY(XY(gap + 5, conInfo::wherey())); printf("dolna czesc okretu (%c) - klawisz s,\n",     EPart::BotomEnd);
+    gotoXY(XY(gap + 5, conInfo::wherey())); printf("lewa czesc okretu (%c) - klawisz a,\n",      EPart::LeftEnd);
+    gotoXY(XY(gap + 5, conInfo::wherey())); printf("prawa czesc okretu (%c) - klawisz d,\n",     EPart::RightEnd);
+    gotoXY(XY(gap + 5, conInfo::wherey())); printf("srodkowa czesc okretu (%c) - klawisz q,\n",  EPart::Middle);
+    gotoXY(XY(gap + 5, conInfo::wherey())); printf("przekreslenie (%c) - klawisz e\n",           EPart::Striked);
     gotoXY(XY(gap + 5, conInfo::wherey())); printf("Dynamiczny wybor statku - klawisz r\n"     );
     gotoXY(XY(gap + 5, conInfo::wherey())); printf("Anulowanie powyzszego trybu - klawisz BACKSPACE\n");
 
@@ -47,19 +47,19 @@ void spInfo::printHelp(size_t gap)
     gotoXY(XY(gap + 5, conInfo::wherey())); printf("opuszczenie programu - klawisz ESC\n"      );
 }
 
-void spInfo::printRemainedShips(size_t gap, std::vector< std::vector<spData::EShip> > const & remainedShips)
+void spInfo::printRemainedShips(size_t gap, std::vector< std::vector<EShip::EShip> > const & remainedShips)
 {
-	std::map<spData::EShip, std::string> bar = { { spData::ES4Battleship, "\x11\xfe\xfe\x10" }, //<==>
-			{ spData::ES3Cruiser, "\x11\xfe\x10" }, //<=>
-			{ spData::ES2Destroyer, "\x11\x10" }, //<>
-			{ spData::ES1Cutter, "\x04" }, }; //=
+	std::map<EShip::EShip, std::string> bar = { { EShip::Battleship_4, "\x11\xfe\xfe\x10" }, //<==>
+			{ EShip::Cruiser_3, "\x11\xfe\x10" }, //<=>
+			{ EShip::Destroyer_2, "\x11\x10" }, //<>
+			{ EShip::Cutter_1, "\x04" }, }; //=
 
 	gotoXY();
 	for(size_t i = 0; i < remainedShips.size(); i++)
 	{
 		printf("%*c", gap + 5, ' ');
 
-		for(const spData::EShip a : remainedShips[i])
+		for(const EShip::EShip a : remainedShips[i])
 			printf("%s ", bar[a].c_str());
 
 		printf("%*c\n", 10, ' ');
