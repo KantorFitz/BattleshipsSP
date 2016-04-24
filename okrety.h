@@ -89,11 +89,11 @@ struct Coord : public XY
    	void moveUp();
    	void moveLeft();
    	void moveRight();
-   	bool isCursonOnBorder();
-   	bool isCursorOnTopBorder();
-   	bool isCursorOnBottomBorder();
-   	bool isCursorOnLeftBorder();
-   	bool iscursorOnRightBorder();
+   	bool onBorder();
+   	bool onTopBorder();
+   	bool onBottomBorder();
+   	bool onLeftBorder();
+   	bool onRightBorder();
 
 private:
 	const size_t max;

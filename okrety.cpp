@@ -55,30 +55,29 @@ void Coord::moveRight()
 		++X;
 }
 
-bool Coord::isCursorOnTopBorder()
+bool Coord::onTopBorder()
 {
 	return Y == 0;
 }
 
-bool Coord::isCursorOnBottomBorder()
+bool Coord::onBottomBorder()
 {
 	return Y == max - 1;
 }
 
-bool Coord::isCursorOnLeftBorder()
+bool Coord::onLeftBorder()
 {
 	return X == 0;
 }
 
-bool Coord::iscursorOnRightBorder()
+bool Coord::onRightBorder()
 {
 	return X == max - 1;
 }
 
-bool Coord::isCursonOnBorder()
+bool Coord::onBorder()
 {
-	return isCursorOnLeftBorder() || iscursorOnRightBorder() || isCursorOnTopBorder()
-			|| isCursorOnBottomBorder();
+	return onLeftBorder() || onRightBorder() || onTopBorder() || onBottomBorder();
 }
 
 VecPairXY_Dir * getSth(const EPart::EPart* const * Tablica, const size_t Rozmiar, EShip::EShip Ship)

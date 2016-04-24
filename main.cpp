@@ -51,6 +51,7 @@ int main()
 	struct Helper
 	{
 		XY StartPosition;
+		bool fixedShip;
 		bool isActive;
 		bool isDirSet;
 		EShip::EShip shipType;
@@ -83,7 +84,7 @@ int main()
 		void reset(void)
 		{
 			StartPosition.setXY(-1, -1);
-			isDirSet = isActive = false;
+			fixedShip = isDirSet = isActive = false;
 			shipType = EShip::Random;
 			Direction = EDirection::Random;
 		}
@@ -124,7 +125,7 @@ int main()
 			return *this;
 		}
 
-		Helper() : isActive(false), isDirSet(false), shipType(EShip::Random),
+		Helper() : fixedShip(false), isActive(false), isDirSet(false), shipType(EShip::Random),
 					 Direction(EDirection::Random) {} //c-tor
 	} helper;
 
@@ -159,20 +160,23 @@ int main()
 				{
 					if(helper.Direction != EDirection::Vertical)
 					{
-						if(helper.shipType == EShip::Cutter_1)
+						if(helper.shipType == EShip::Cutter_1 && !helper.fixedShip)
 							helper.Direction = EDirection::Vertical;
 						else
 							break;
 					}
 				}
 
-				if(pos.isCursorOnTopBorder())
+				if(pos.onTopBorder())
 					break;
 
 				EPart::EPart upperTile = BoardToFill[pos.getY() - 1][pos.getX()];
 
 				if(upperTile != EPart::PlaceHolder && upperTile != EPart::Empty)
-					break;
+				{
+					if(!(helper.fixedShip && upperTile == EPart::Middle))
+						break;
+				}
 
 				if(pos.getY() > 0)
 				{
@@ -180,10 +184,18 @@ int main()
 					{
 						if(helper.shipType != EShip::Battleship_4)
 						{
-							pos.moveUp();
-							helper.StartPosition.setXY(pos);
-							BoardToFill[pos.getY()][pos.getX()] = EPart::PlaceHolder;
-							++helper; //statek sie zwieksza
+							if(helper.fixedShip && pos.getY() == helper.StartPosition.getY()
+									&& BoardToFill[pos.getY()][pos.getX()] == EPart::TopEnd)
+							{
+								break;
+							}
+							else
+							{
+								pos.moveUp();
+								helper.StartPosition.setXY(pos);
+								BoardToFill[pos.getY()][pos.getX()] = EPart::PlaceHolder;
+								++helper; //statek sie zwieksza
+							}
 						}
 						break;
 					}
@@ -210,20 +222,23 @@ int main()
 				{
 					if(helper.Direction != EDirection::Vertical)
 					{
-						if(helper.shipType == EShip::Cutter_1)
+						if(helper.shipType == EShip::Cutter_1 && !helper.fixedShip)
 							helper.Direction = EDirection::Vertical;
 						else
 							break;
 					}
 				}
 
-				if(pos.isCursorOnBottomBorder())
+				if(pos.onBottomBorder())
 					break;
 
 				EPart::EPart lowerTile = BoardToFill[pos.getY() + 1][pos.getX()];
 
 				if(lowerTile != EPart::PlaceHolder && lowerTile != EPart::Empty)
-					break;
+				{
+					if(!(helper.fixedShip && lowerTile == EPart::Middle))
+						break;
+				}
 
 				if(pos.getY() < BOARD_SIZE)
 				{
@@ -241,10 +256,18 @@ int main()
 					{
 						if(helper.shipType == EShip::Cutter_1)
 						{
-							pos.moveDown();
-							BoardToFill[pos.getY()][pos.getX()] = EPart::PlaceHolder;
-							++helper;
-							break;
+							if(helper.fixedShip && helper.StartPosition.getY() == pos.getY()
+									&& BoardToFill[pos.getY()][pos.getX()] == EPart::BotomEnd)
+							{
+								break;
+							}
+							else
+							{
+								pos.moveDown();
+								BoardToFill[pos.getY()][pos.getX()] = EPart::PlaceHolder;
+								++helper;
+								break;
+							}
 						}
 						else
 						{
@@ -271,20 +294,23 @@ int main()
 				{
 					if(helper.Direction != EDirection::Horizontal)
 					{
-						if(helper.shipType == EShip::Cutter_1)
+						if(helper.shipType == EShip::Cutter_1 && !helper.fixedShip)
 							helper.Direction = EDirection::Horizontal;
 						else
 							break;
 					}
 				}
 
-				if(pos.isCursorOnLeftBorder())
+				if(pos.onLeftBorder())
 					break;
 
 				EPart::EPart prevTile = BoardToFill[pos.getY()][pos.getX() - 1];
 
 				if(prevTile != EPart::PlaceHolder && prevTile != EPart::Empty)
-					break;
+				{
+					if(!(helper.fixedShip && prevTile == EPart::Middle))
+						break;
+				}
 
 				if(pos.getX() >= 0)
 				{
@@ -292,6 +318,11 @@ int main()
 					{
 						if(helper.shipType != EShip::Battleship_4)
 						{
+							if(helper.fixedShip && helper.StartPosition.getX() == pos.getX()
+									&& BoardToFill[pos.getY()][pos.getX()] == EPart::LeftEnd)
+							{
+								break;
+							}
 							pos.moveLeft();
 							BoardToFill[pos.getY()][pos.getX()] = EPart::PlaceHolder;
 							helper.StartPosition.setXY(pos);
@@ -332,20 +363,23 @@ int main()
 				{
 					if(helper.Direction != EDirection::Horizontal)
 					{
-						if(helper.shipType == EShip::Cutter_1)
+						if(helper.shipType == EShip::Cutter_1 && !helper.fixedShip)
 							helper.Direction = EDirection::Horizontal;
 						else
 							break;
 					}
 				}
 
-				if(pos.iscursorOnRightBorder())
+				if(pos.onRightBorder())
 					break;
 
 				EPart::EPart nextTile = BoardToFill[pos.getY()][pos.getX() + 1];
 
 				if(nextTile != EPart::Empty && nextTile != EPart::PlaceHolder)
-					break;
+				{
+					if(!(helper.fixedShip && nextTile == EPart::Middle))
+						break;
+				}
 
 				if(pos.getX() < BOARD_SIZE)
 				{
@@ -353,6 +387,11 @@ int main()
 					{
 						if(helper.shipType == EShip::Cutter_1)
 						{
+							if(helper.fixedShip && helper.StartPosition.getX() == pos.getX()
+									&& BoardToFill[pos.getY()][pos.getX()] == EPart::RightEnd)
+							{
+								break;
+							}
 							pos.moveRight();
 							BoardToFill[pos.getY()][pos.getX()] = EPart::PlaceHolder;
 							++helper;
@@ -441,12 +480,39 @@ int main()
 		case 114: //r
 			if(!helper.isActive)
 			{
-				if(BoardToFill[pos.getY()][pos.getX()] != EPart::Empty)
+				EPart::EPart tile = BoardToFill[pos.getY()][pos.getX()];
+				if(tile != EPart::WaterField && tile != EPart::Middle && tile != EPart::Single)
+				{
+					helper.StartPosition.setXY(pos);
+					helper.shipType = EShip::Cutter_1;
+					helper.isActive = true;
+
+					switch (tile)
+					{
+					case EPart::LeftEnd:
+					case EPart::RightEnd:
+					{
+						helper.fixedShip = helper.isDirSet = true;
+						helper.setDirection(EDirection::Horizontal);
+					}
 					break;
-				helper.StartPosition.setXY(pos.getX(), pos.getY());
-				helper.shipType = EShip::Cutter_1;
-				BoardToFill[pos.getY()][pos.getX()] = EPart::PlaceHolder;
-				helper.isActive = true;
+					case EPart::TopEnd:
+					case EPart::BotomEnd:
+					{
+						helper.fixedShip = helper.isDirSet = true;
+						helper.setDirection(EDirection::Vertical);
+					}
+					break;
+					case EPart::Empty:
+					{
+						BoardToFill[pos.getY()][pos.getX()] = EPart::PlaceHolder;
+					}
+					break;
+					default:
+					{
+					}
+					}
+				}
 			}
 			else
 			{
