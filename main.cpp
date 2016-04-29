@@ -146,6 +146,106 @@ int main()
 		if(znak == 224)
 			znak = getch();
 
+		/**************************************************************/
+
+		if(znak == EChar::UP || znak == EChar::DOWN || znak == EChar::LEFT || znak == EChar::RIGHT)
+		{
+			if(helper.isActive)
+			{
+				if(helper.isDirSet == false)
+				{
+					helper.isDirSet = true;
+					switch (znak)
+					{
+					case EChar::UP:
+					case EChar::DOWN:
+						helper.Direction = EDirection::Vertical;
+						break;
+					case EChar::LEFT:
+					case EChar::RIGHT:
+						helper.Direction = EDirection::Horizontal;
+						break;
+					}
+				}
+				else
+				{
+					if(helper.shipType == EShip::Cutter_1 && !helper.fixedShip)
+					{
+						switch(znak)
+						{
+						case EChar::UP:
+						case EChar::DOWN:
+							if(helper.Direction != EDirection::Vertical)
+								helper.Direction = EDirection::Vertical;
+							break;
+						case EChar::LEFT:
+						case EChar::RIGHT:
+							if(helper.Direction != EDirection::Horizontal)
+								helper.Direction = EDirection::Horizontal;
+							break;
+						}
+					}
+				}
+
+				bool canGoFurther = false;
+				if(znak == EChar::UP)
+				{
+					if(!pos.onTopBorder())
+						canGoFurther = true;
+				}
+				else if(znak == EChar::DOWN)
+				{
+					if(!pos.onBottomBorder())
+						canGoFurther = true;
+				}
+				else if(znak == EChar::LEFT)
+				{
+					if(!pos.onLeftBorder())
+						canGoFurther = true;
+				}
+				else if(znak == EChar::RIGHT)
+				{
+					if(!pos.onRightBorder())
+						canGoFurther = true;
+				}
+
+				if(canGoFurther == true)
+				{
+					EPart::EPart tileToCheck;
+					switch(znak)
+					{
+					case EChar::UP:
+						tileToCheck = BoardToFill[pos.getY() - 1][pos.getX()];
+						break;
+					case EChar::DOWN:
+						tileToCheck = BoardToFill[pos.getY() + 1][pos.getX()];
+						break;
+					case EChar::LEFT:
+						tileToCheck = BoardToFill[pos.getY()][pos.getX() - 1];
+						break;
+					case EChar::RIGHT:
+						tileToCheck = BoardToFill[pos.getY()][pos.getX() + 1];
+						break;
+					}
+
+					if(tileToCheck != EPart::PlaceHolder && tileToCheck != EPart::Empty)
+					{
+						if(!(helper.fixedShip && tileToCheck == EPart::Middle))
+							canGoFurther = false;
+					}
+
+					if(canGoFurther == true)
+					{
+						//todo refaktoryzacja dalszej czesci
+					}
+
+				}
+			}
+		}
+
+
+		/**************************************************************/
+
 		switch (znak)
 		{
 		case 72: // ^
@@ -445,7 +545,7 @@ int main()
 			drawShipForced(Solution, BOARD_SIZE);
 			prepareStartingPattern(Solution, BOARD_SIZE, StartingPattern);
 			for(size_t y = 0; y < BOARD_SIZE; y++)
-			{
+			{//todo oplaca sie przerobic na i/10 i i%10 ?
 				for(size_t x = 0; x < BOARD_SIZE; x++)
 				{
 					BoardToFill[y][x] = StartingPattern[y][x];
@@ -456,7 +556,7 @@ int main()
 			if(!helper.isActive)
 			{
 				for (size_t i = 0; i < BOARD_SIZE; i++)
-				{
+				{//todo oplaca sie przerobic na i/10 i i%10 ?
 					for (size_t j = 0; j < BOARD_SIZE; j++)
 					{
 						BoardToFill[i][j] = StartingPattern[i][j];
@@ -473,7 +573,7 @@ int main()
 				size_t tempy = (
 						helper.Direction ? helper.StartPosition.getY() : helper.StartPosition.getY() + i);
 
-				BoardToFill[tempy][tempx] = EPart::Empty;
+				BoardToFill[tempy][tempx] = StartingPattern[tempy][tempx];
 			}
 			helper.reset();
 			break;
@@ -520,7 +620,7 @@ int main()
 					helper.Direction = EDirection::Horizontal;
 				if(!helper.remainedShips[4 - helper.shipType].empty())
 				{
-					drawShip(BoardToFill, BOARD_SIZE, helper.shipType, helper.Direction, helper.StartPosition);
+					drawShip(BoardToFill, BOARD_SIZE, helper.shipType, helper.Direction, helper.StartPosition, false);
 					helper.destroyCurrentShip();
 					helper.reset();
 				}

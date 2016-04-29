@@ -49,8 +49,8 @@ typedef std::vector<std::pair<XY, EDirection::EDirection>> VecPairXY_Dir;
 
 struct XY
 {
-	XY() : X(-1), Y(-1) {} //c-tor
-	XY(size_t p_x, size_t p_y) : X(p_x), Y(p_y) {}
+	XY() : X(-1), Y(-1) {} //default c-tor
+	XY(int p_x, int p_y) : X(p_x), Y(p_y) {}
 	XY(const XY& copy) : X( copy.getX() ), Y( copy.getY() ) {} //copy c-tor
    	size_t getX() const
    	{
@@ -66,7 +66,7 @@ struct XY
    	void setXY(const Coord&);
    	void setXY(const int x, const int y);
 
-   	bool isValid(size_t Boundary);
+   	bool isValid(int Boundary);
 
    	bool operator==(const XY& rhs) const
 	{
@@ -96,11 +96,11 @@ struct Coord : public XY
    	bool onRightBorder();
 
 private:
-	const size_t max;
+	const int max;
 };
 
 void countShipsParts(const EPart::EPart* const *, const size_t, size_t **);
-bool drawShip(EPart::EPart **, const size_t, EShip::EShip, EDirection::EDirection, XY = XY(-1, -1));
+bool drawShip(EPart::EPart **, const size_t, EShip::EShip, EDirection::EDirection, XY = XY(-1, -1), bool = true);
 bool drawShipForced(EPart::EPart **, const size_t Rozmiar); //Forced draw any ship
 void drawBoundary(EPart::EPart**, size_t const, EShip::EShip, EDirection::EDirection, size_t, size_t, bool = true);
 VecPairXY_Dir * getSth(const EPart::EPart* const * Tablica, const size_t Rozmiar, EShip::EShip Ship);

@@ -18,7 +18,7 @@ void XY::setXY(const int x, const int y)
 	Y = y;
 }
 
-bool XY::isValid(size_t Boundary)
+bool XY::isValid(int Boundary)
 {
 	return X < Boundary && Y < Boundary && X > -1 && Y > -1;
 }
@@ -84,7 +84,7 @@ VecPairXY_Dir * getSth(const EPart::EPart* const * Tablica, const size_t Rozmiar
 {
 	bool isThereAnyPlaceAvailable = false;
 	for (size_t y = 0; y < Rozmiar; y++)// Szukamy jakiegokolwiek wolnego miejsca tylko dla pola 1x1
-	{
+	{//todo oplaca sie przerobic na i/10 i i%10 ?
 		for(size_t x = 0; x < Rozmiar; x++)
 		{
 			if((Tablica[y][x] == EPart::Empty) || (Tablica[y][x] == EPart::PlaceHolder))
@@ -151,7 +151,7 @@ VecPairXY_Dir * getSth(const EPart::EPart* const * Tablica, const size_t Rozmiar
 void countShipsParts(const EPart::EPart* const* Tablica, const size_t Rozmiar, size_t ** Wartosci)
 {
 	for (size_t i = 0; i < 2; i++)	//zerowanie tablicy
-	{
+	{//todo oplaca sie przerobic na i/10 i i%10 ?
 		for (size_t j = 0; j < Rozmiar; j++)
 			Wartosci[i][j] = 0;
 	}
@@ -177,9 +177,9 @@ void drawBoundary(EPart::EPart** Tablica, size_t const Rozmiar, EShip::EShip Sta
 		return;
 
 	for (short loop = 0; loop < Statek; loop++)
-	{					/*Je¿eli YPos > 0, to zaczynamy wczeœniej*/
+	{
 		for (size_t y = (YPos ? YPos - 1 : 0); y < YPos + 2; y++)
-		{
+		{/*Je¿eli YPos > 0, to zaczynamy wczeœniej*/
 			if(!(y < Rozmiar))
 				continue;//Analogicznie jak wy¿ej
 			for (size_t x = (XPos ? XPos - 1 : 0); x < XPos + 2; x++)
@@ -196,63 +196,65 @@ void drawBoundary(EPart::EPart** Tablica, size_t const Rozmiar, EShip::EShip Sta
 	}
 }
 
-bool drawShip(EPart::EPart ** Tablica, size_t const Rozmiar, EShip::EShip Statek,
-		EDirection::EDirection Kierunek, XY posXY /* = ( -1, -1 ) */)//Edirection == EDRandom znaczy sprawdzenie w dwóch kierunkach
+bool drawShip(EPart::EPart ** Tablica, size_t const Rozmiar, EShip::EShip Statek, EDirection::EDirection Kierunek,
+		XY posXY /* = ( -1, -1 ) */, bool hasToBeValid/* = true */)	//Edirection == EDRandom znaczy sprawdzenie w dwóch kierunkach
 {
 	if(Statek == EShip::Random)
 		return false;
 
-	VecPairXY_Dir * foobar;
-	std::random_device rd;
-	std::mt19937 g(rd());
+	if(hasToBeValid)
+	{
+		VecPairXY_Dir * foobar;
+		std::random_device rd;
+		std::mt19937 g(rd());
 
-	size_t HorStart, VerStart;
-	XY tempXY;
-
-	/*Pobieranie wszystkich miejsc dla danego statku*/
-	foobar = getSth(Tablica, Rozmiar, Statek);
-	if(foobar)	//je¿eli jakieœ s¹...
-	{	/* je¿eli kierunek jest ustalony, wywalamy wszystkie opcje nie zgadzaj¹ce siê z nim*/
-		if(Kierunek != EDirection::Random)
-		{
-			auto i = std::begin(*foobar);
-			while(i != std::end(*foobar))
+		/*Pobieranie wszystkich miejsc dla danego statku*/
+		foobar = getSth(Tablica, Rozmiar, Statek);
+		if(foobar)	//je¿eli jakieœ s¹...
+		{ /* je¿eli kierunek jest ustalony, wywalamy wszystkie opcje nie zgadzaj¹ce siê z nim*/
+			if(Kierunek != EDirection::Random)
 			{
-				if((i->second != Kierunek) || ((posXY.isValid(Rozmiar)) && (i->first != posXY)))
-					i = foobar->erase(i);
-				else
+				auto i = std::begin(*foobar);
+				while(i != std::end(*foobar))
+				{
+					if((i->second != Kierunek) || ((posXY.isValid(Rozmiar)) && (i->first != posXY)))
+						i = foobar->erase(i);
+					else
+						i++;
+				}
+#ifdef printAdditionalInfo
+				i = std::begin(*foobar);
+				while(i != std::end(*foobar))
+				{
+					printf("XY(%i, %i) - %s\n", i->first.getX(), i->first.getY(), i->second ? "Hor" : "Ver");
 					i++;
+				}
+#endif
 			}
-#	ifdef printAdditionalInfo
-			i = std::begin(*foobar);
-			while(i != std::end(*foobar))
+			if(!foobar->empty())
 			{
-				printf("XY(%i, %i) - %s\n", i->first.getX(), i->first.getY(), i->second ? "Hor" : "Ver");
-				i++;
+				std::shuffle(foobar->begin(), foobar->end(), g);
+				size_t randIndex = std::rand() % foobar->size();
+				Kierunek = foobar->at(randIndex).second;
+				posXY.setXY(foobar->at(randIndex).first);
 			}
-#	endif
-		}
-		if(!foobar->empty())
-		{
-			std::shuffle(foobar->begin(), foobar->end(), g);
-			size_t randIndex = std::rand() % foobar->size();
-			Kierunek = foobar->at(randIndex).second;
-			tempXY.setXY(foobar->at(randIndex).first);
+			else
+				return false;
+			delete foobar;
 		}
 		else
 			return false;
-		delete foobar;
+
+#ifdef printAdditionalInfo
+		printf("Kierunek(%s), tempXY(%i)(%i).\n", Kierunek ? "EDHorizontal" : "EDVertical", posXY.getX(),
+				posXY.getY());
+#endif
 	}
-	else
-		return false;
 
-#	ifdef printAdditionalInfo
-	printf("Kierunek(%s), tempXY(%i)(%i).\n", Kierunek ? "EDHorizontal" : "EDVertical", tempXY.getX(),
-			tempXY.getY());
-#	endif
+	size_t HorStart, VerStart;
 
-	HorStart = tempXY.getX();
-	VerStart = tempXY.getY();
+	HorStart = posXY.getX();
+	VerStart = posXY.getY();
 	for (size_t i = 0; i < Statek; i++)
 	{
 		size_t tempx = (Kierunek ? HorStart + i : HorStart);
@@ -318,7 +320,7 @@ bool drawShipForced(EPart::EPart ** Tablica, const size_t Rozmiar)
 	}
 
 	std::vector<XY> waterFields;
-	for(size_t y = 0; y < Rozmiar; y++)
+	for(size_t y = 0; y < Rozmiar; y++)//todo oplaca sie przerobic na i/10 i i%10 ?
 	{
 		for(size_t x = 0; x < Rozmiar; x++)
 		{
@@ -345,7 +347,7 @@ void prepareStartingPattern(const EPart::EPart* const * Tablica, const size_t Ro
 
 	std::vector<XY> startingTiles;
 	EPart::EPart tile;
-	for(size_t y = 0; y < Rozmiar; y++)
+	for(size_t y = 0; y < Rozmiar; y++)//todo oplaca sie przerobic na i/10 i i%10 ?
 	{
 		for(size_t x = 0; x < Rozmiar; x++)
 		{

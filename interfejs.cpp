@@ -30,7 +30,6 @@ void spInfo::printHelp(size_t gap)
 {
 	gotoXY();
 
-    // **************** wypelnienie hintów ************** ile znaków  znak
     gotoXY(XY(gap + 5, conInfo::wherey())); printf("Gra w okrety - wersja ALFA\n"              );
     gotoXY(XY(gap + 5, conInfo::wherey())); printf("wskazniki przesuwa sie strzalkami,\n"      );
     gotoXY(XY(gap + 5, conInfo::wherey())); printf("elementy statku to:\n"                     );

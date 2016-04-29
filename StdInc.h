@@ -11,6 +11,16 @@
 #include <random>
 #include <algorithm>
 
+namespace EChar
+{
+	enum EChar
+	{
+		UP = 72,
+		DOWN = 80,
+		LEFT = 75,
+		RIGHT = 77
+	};
+}
 
 #	if 0
 
